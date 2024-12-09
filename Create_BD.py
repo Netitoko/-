@@ -75,6 +75,11 @@ CREATE TABLE IF NOT EXISTS Document (
 ''')
 
 cursor.execute('''
+INSERT INTO Document (Name, Type, Author, CreationDate, Content, Status, Version, FileType) VALUES
+    ('Документ 1', 'Отчёт', 1, '2024-12-09', '', 1, 1, '.docx');
+''')
+
+cursor.execute('''
 CREATE TABLE IF NOT EXISTS Action (
     Id INTEGER PRIMARY KEY AUTOINCREMENT,
     Type TEXT NOT NULL,
@@ -86,6 +91,12 @@ CREATE TABLE IF NOT EXISTS Action (
     FOREIGN KEY (Document) REFERENCES Document(Id),
     FOREIGN KEY (Users) REFERENCES Users(Id)
 );
+''')
+
+cursor.execute('''
+INSERT INTO Action (Type, Object, Document, Users, DateTime, Description) VALUES
+    ('Поиск документов', '', '', 1, '2024-12-09 08:34:14', 'Пользователь выполнил поиск с фильтром'),
+    ('Добавление документа', 'Документ 1', 2, 1, '2024-12-09 08:39:42', "'Документ 1' был добавлен пользователем."); 
 ''')
 
 cursor.execute('''
