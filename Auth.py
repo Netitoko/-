@@ -5,7 +5,13 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import re
 from main_window import *
+from Create_BD import *
 
+
+if not os.path.exists("document_management_system.db"):
+    print("База данных не найдена. Создаём новую...")
+    conn = sqlite3.connect("document_management_system.db")
+    conn.close()
 
 class AuthWindow(QWidget):
     """

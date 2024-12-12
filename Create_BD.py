@@ -1,5 +1,13 @@
 import sqlite3
 
+def convert_to_blob(file_path):
+    try:
+        with open(file_path, 'rb') as file:
+            blob_data = file.read()
+        return blob_data
+    except FileNotFoundError:
+        print(f"Файл {file_path} не найден.")
+        return None
 
 conn = sqlite3.connect('document_management_system.db')
 cursor = conn.cursor()
@@ -12,11 +20,13 @@ CREATE TABLE IF NOT EXISTS Role (
 );
 ''')
 
-cursor.execute('''
-INSERT INTO Role (Name, AccessRights) VALUES
-    ('admin', 'полный доступ'),
-    ('user', 'ограниченный доступ');
-''')
+cursor.execute("SELECT COUNT(*) FROM Role")
+if cursor.fetchone()[0] == 0:
+    cursor.execute('''
+    INSERT INTO Role (Name, AccessRights) VALUES
+        ('admin', 'полный доступ'),
+        ('user', 'ограниченный доступ');
+    ''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS Status (
@@ -25,16 +35,19 @@ CREATE TABLE IF NOT EXISTS Status (
     Description TEXT
 );   
 ''')
-cursor.execute('''
-INSERT INTO Status (Name, Description) VALUES
-    ('Создан', 'Документ был создан и ожидает обработки.'),
-    ('На рассмотрении', 'Документ находится на рассмотрении у ответственного лица.'),
-    ('Согласован', 'Документ согласован всеми необходимыми сторонами.'),
-    ('Отклонен', 'Документ был отклонен и требует доработки.'),
-    ('Выполнен', 'Документ выполнен и закрыт.'),
-    ('Архивирован', 'Документ завершен и перемещен в архив.'),
-    ('Удален', 'Документ был удален из системы.');
-''')
+
+cursor.execute("SELECT COUNT(*) FROM Status")
+if cursor.fetchone()[0] == 0:
+    cursor.execute('''
+    INSERT INTO Status (Name, Description) VALUES
+        ('Создан', 'Документ был создан и ожидает обработки.'),
+        ('На рассмотрении', 'Документ находится на рассмотрении у ответственного лица.'),
+        ('Согласован', 'Документ согласован всеми необходимыми сторонами.'),
+        ('Отклонен', 'Документ был отклонен и требует доработки.'),
+        ('Выполнен', 'Документ выполнен и закрыт.'),
+        ('Архивирован', 'Документ завершен и перемещен в архив.'),
+        ('Удален', 'Документ был удален из системы.');
+    ''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS Users (
@@ -51,12 +64,14 @@ CREATE TABLE IF NOT EXISTS Users (
 );
 ''')
 
-cursor.execute('''
-INSERT INTO Users (Login, Password, FirstName, LastName, MiddleName, Role, Phone_number, Email) VALUES
-    ('Netitoko', 'XzFt3AKA!', 'Арина', 'Петрухина', 'Александровна', 1, '89853450293', 'netitokoo@gmail.com'),
-    ('Matvey_01', 'XzFt3AKA!', 'Матвей', 'Петрухин', 'Александрович', 2, '+79856208880', 'pma25122015@gmail.com'),
-    ('A_IrinaSergeevna', 'XzFt3AKA!', 'Ирина', 'Алхимова', 'Сергеевна', 2, '+79167585592', 'irina_alhimova@mail.ru');
-''')
+cursor.execute("SELECT COUNT(*) FROM Users")
+if cursor.fetchone()[0] == 0:
+    cursor.execute('''
+    INSERT INTO Users (Login, Password, FirstName, LastName, MiddleName, Role, Phone_number, Email) VALUES
+        ('Netitoko', 'XzFt3AKA!', 'Арина', 'Петрухина', 'Александровна', 1, '89873455592', 'netito8642@gmail.com'),
+        ('Matvey_01', 'XzFt3AKA!', 'Матвей', 'Петрухин', 'Александрович', 2, '89876200293', 'pma8642@gmail.com'),
+        ('A_Irina', 'XzFt3AKA!', 'Ирина', 'Алхимова', 'Сергеевна', 2, '89177588880', 'irina_8642@mail.ru');
+    ''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS Document (
@@ -74,10 +89,16 @@ CREATE TABLE IF NOT EXISTS Document (
 );
 ''')
 
-cursor.execute('''
-INSERT INTO Document (Name, Type, Author, CreationDate, Content, Status, Version, FileType) VALUES
-    ('Документ 1', 'Отчёт', 1, '2024-12-09', '', 1, 1, '.docx');
-''')
+cursor.execute("SELECT COUNT(*) FROM Document")
+if cursor.fetchone()[0] == 0:
+    cursor.execute('''
+    INSERT INTO Document (Name, Type, Author, CreationDate, Content, Status, Version, FileType) VALUES
+        ('Документ 1', 'Поручение', 1, '2024-12-01', NULL, 1, 1, '.docx'),
+        ('Документ 2', 'Отчет', 1, '2024-12-05', NULL, 2, 1, '.pdf'),
+        ('Документ 3', 'Заявление', 3, '2024-12-05', NULL, 3, 1, '.zip'),
+        ('Документ 4', 'Отчет', 3, '2024-12-15', NULL, 4, 1, '.pdf'),
+        ('Документ 5', 'Распоряжение', 2, '2024-12-10', NULL, 5, 1, '.pdf');
+    ''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS Action (
@@ -93,11 +114,14 @@ CREATE TABLE IF NOT EXISTS Action (
 );
 ''')
 
-cursor.execute('''
-INSERT INTO Action (Type, Object, Document, Users, DateTime, Description) VALUES
-    ('Поиск документов', '', '', 1, '2024-12-09 08:34:14', 'Пользователь выполнил поиск с фильтром'),
-    ('Добавление документа', 'Документ 1', 2, 1, '2024-12-09 08:39:42', "'Документ 1' был добавлен пользователем."); 
-''')
+cursor.execute("SELECT COUNT(*) FROM Action")
+if cursor.fetchone()[0] == 0:
+    cursor.execute('''
+    INSERT INTO Action (Type, Object, Document, Users, DateTime, Description) VALUES
+        ('Поиск документов', '', 1, 1, '2024-12-01 10:00:00', 'Поиск документов'),
+        ('Поиск документов', '5', 2, 1, '2024-12-05 14:00:00', 'Поиск документов'),
+        ('Удаление', 'Документ 5', 3, 2, '2024-12-10 09:00:00', 'Удален документ');
+    ''')
 
 cursor.execute('''
 CREATE TABLE IF NOT EXISTS CalendarEvent (
@@ -113,14 +137,16 @@ CREATE TABLE IF NOT EXISTS CalendarEvent (
 );
 ''')
 
-cursor.execute('''
-INSERT INTO CalendarEvent (Title, Description, EventDate, StartTime, EndTime, CreatedBy, Color)
-VALUES
-    ('Совещание по проекту', 'Обсуждение деталей нового проекта', '2024-11-01', '10:00', '12:00', 1, '#FF5733'),
-    ('Собрание команды', 'Командное собрание для обсуждения планов', '2024-11-03', '14:00', '16:00', 1, '#33FF57'),
-    ('Презентация нового продукта', 'Презентация для руководства', '2024-11-05', '09:00', '11:00', 1, '#5733FF'),
-    ('Открытие нового офиса', 'Открытие нового офисного здания', '2024-11-10', '18:00', '20:00', 2, '#FF33A1');
-''')
+cursor.execute("SELECT COUNT(*) FROM CalendarEvent")
+if cursor.fetchone()[0] == 0:
+    cursor.execute('''
+        INSERT INTO CalendarEvent (Title, Description, EventDate, StartTime, EndTime, CreatedBy, Color)
+        VALUES
+            ('Совещание по проекту', 'Обсуждение деталей нового проекта', '2024-12-01', '10:00', '12:00', 1, '#FF5733'),
+            ('Собрание команды', 'Командное собрание для обсуждения планов', '2024-12-03', '14:00', '16:00', 1, '#33FF57'),
+            ('Презентация нового продукта', 'Презентация для руководства', '2024-12-05', '09:00', '11:00', 1, '#5733FF'),
+            ('Открытие нового офиса', 'Открытие нового офисного здания', '2024-12-10', '18:00', '20:00', 2, '#FF33A1');
+        ''')
 
 conn.commit()
 conn.close()
